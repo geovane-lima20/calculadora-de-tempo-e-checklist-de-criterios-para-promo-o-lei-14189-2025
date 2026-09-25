@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="light" />
+  <title>Checklist de Promoções - Lei nº 14.189/2025 - PMPB</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <header class="topo" id="topo">
+    <div>
+      <p class="kicker">PMPB • Checklist administrativo</p>
+      <h1>Checklist de Promoções - Lei nº 14.189/2025</h1>
+      <p class="subtitulo">
+        Pré-análise do tempo de efetivo serviço e dos critérios complementares para promoções de praças,
+        com data de referência fixa em <strong>14/11/2026</strong>.
+      </p>
+    </div>
+    <div class="badge-data" aria-label="Data de referência da análise">
+      <span>Data de referência</span>
+      <strong>14/11/2026</strong>
+    </div>
+  </header>
+
+  <main>
+    <section class="card card-info">
+      <div class="section-title-row">
+        <div>
+          <p class="section-step">Parâmetros</p>
+          <h2>Regras temporais aplicadas</h2>
+        </div>
+      </div>
+      <div class="regras-grid">
+        <div class="regra"><strong>Soldado → Cabo</strong><span>mais de 7 anos = 2.556 dias</span></div>
+        <div class="regra"><strong>Cabo → 3º Sargento</strong><span>mais de 14 anos = 5.111 dias</span></div>
+        <div class="regra"><strong>3º Sargento → 2º Sargento</strong><span>mais de 21 anos = 7.666 dias</span></div>
+        <div class="regra"><strong>2º Sargento → 1º Sargento</strong><span>28 anos = 10.220 dias</span></div>
+      </div>
+      <p class="nota">
+        A contagem é feita dia a dia, incluindo a data de inclusão e a data-limite. Para conversão do total,
+        utiliza-se 1 ano = 365 dias e 1 mês = 30,41 dias, preservando o padrão da calculadora fornecida.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="titulo-tempo">
+      <div class="section-title-row">
+        <div>
+          <p class="section-step">1</p>
+          <h2 id="titulo-tempo">Tempo de efetivo serviço</h2>
+        </div>
+      </div>
+
+      <div class="form-grid three-cols">
+        <div class="field">
+          <label for="graduacao">Graduação atual *</label>
+          <select id="graduacao" required>
+            <option value="" selected disabled>Selecione a graduação</option>
+            <option value="soldado">Soldado</option>
+            <option value="cabo">Cabo</option>
+            <option value="3sgt">3º Sargento</option>
+            <option value="2sgt">2º Sargento</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="promocaoPretendida">Promoção analisada</label>
+          <input id="promocaoPretendida" type="text" value="Selecione a graduação atual" readonly />
+        </div>
+
+        <div class="field">
+          <label for="dataInclusao">Data de inclusão *</label>
+          <input id="dataInclusao" type="date" max="2026-11-14" required />
+        </div>
+      </div>
+
+      <div class="reference-grid">
+        <details class="reference-box">
+          <summary>Referência da inclusão (opcional)</summary>
+          <div class="form-grid reference-fields">
+            <div class="field">
+              <label for="inclusaoBol">Nº/identificação do boletim</label>
+              <input id="inclusaoBol" type="text" placeholder="Ex.: Bol PM nº 123/2019" />
+            </div>
+            <div class="field">
+              <label for="inclusaoUnidade">Unidade</label>
+              <input id="inclusaoUnidade" type="text" placeholder="Ex.: DGP, CFAP, 1º BPM" />
+            </div>
+            <div class="field">
+              <label for="inclusaoDataPub">Data de publicação</label>
+              <input id="inclusaoDataPub" type="date" />
+            </div>
+          </div>
+        </details>
+
+        <details class="reference-box">
+          <summary>Referência da graduação atual (opcional)</summary>
+          <div class="form-grid reference-fields">
+            <div class="field">
+              <label for="graduacaoBol">Nº/identificação do boletim</label>
+              <input id="graduacaoBol" type="text" placeholder="Ex.: Bol PM nº 045/2025" />
+            </div>
+            <div class="field">
+              <label for="graduacaoUnidade">Unidade</label>
+              <input id="graduacaoUnidade" type="text" placeholder="Ex.: DGP" />
+            </div>
+            <div class="field">
+              <label for="graduacaoDataPub">Data de publicação</label>
+              <input id="graduacaoDataPub" type="date" />
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="subsection-header">
+        <div>
+          <h3>Deduções de tempo de serviço</h3>
+          <p>Adicione os períodos que devem ser descontados do tempo de efetivo serviço.</p>
+        </div>
+        <button id="addDeducao" class="btn btn-secondary" type="button">+ Adicionar dedução</button>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="tabelaDeducoes">
+          <thead>
+            <tr>
+              <th>Tipo de dedução</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Dias</th>
+              <th>Nº/identificação do boletim</th>
+              <th>Unidade</th>
+              <th>Data de publicação</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="helper">Períodos sobrepostos são consolidados para que o mesmo dia não seja deduzido duas vezes.</p>
+    </section>
+
+    <section class="card" aria-labelledby="titulo-complementares">
+      <div class="section-title-row">
+        <div>
+          <p class="section-step">2</p>
+          <h2 id="titulo-complementares">Informações complementares</h2>
+        </div>
+      </div>
+      <p class="nota">Todos os critérios iniciam marcados como <strong>Não</strong>. Qualquer resposta <strong>Sim</strong> torna a análise inapta conforme os parâmetros deste checklist.</p>
+      <div id="criteriosComplementares" class="criterios-lista"></div>
+    </section>
+
+    <section class="card actions-card" aria-labelledby="titulo-acoes">
+      <div class="section-title-row">
+        <div>
+          <p class="section-step">3 e 5</p>
+          <h2 id="titulo-acoes">Ações</h2>
+        </div>
+      </div>
+      <div class="main-actions">
+        <button id="analisar" class="btn btn-primary" type="button">Analisar promoção</button>
+        <button id="limpar" class="btn btn-ghost" type="button">Limpar avaliação</button>
+      </div>
+      <div id="mensagemErro" class="alert alert-error" role="alert" hidden></div>
+    </section>
+
+    <section id="resultado" class="card result-card" aria-labelledby="titulo-resultado" hidden>
+      <div class="section-title-row result-title-row">
+        <div>
+          <p class="section-step">4</p>
+          <h2 id="titulo-resultado">Resultado da avaliação</h2>
+        </div>
+        <span id="statusBadge" class="status-badge">-</span>
+      </div>
+
+      <div id="resumoResultado" class="resumo-grid"></div>
+
+      <div id="avisosResultado" class="alerts-stack"></div>
+
+      <div class="report-block">
+        <div class="report-header">
+          <div>
+            <h3>Texto para o relatório do SIGPMPB</h3>
+            <p>Texto gerado a partir dos dados informados nesta avaliação.</p>
+          </div>
+          <button id="copiar" class="btn btn-secondary" type="button">Copiar texto</button>
+        </div>
+        <textarea id="textoRelatorio" readonly spellcheck="false"></textarea>
+        <p id="copiarStatus" class="copy-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="card legal-card">
+      <h2>Base e limites da ferramenta</h2>
+      <p>
+        A Lei nº 14.189/2025 acrescentou os §§ 1º, 2º e 3º ao art. 1º da Lei nº 12.227/2022 e estabeleceu,
+        entre outros pontos, os marcos de tempo superior a 7, 14 e 21 anos e o marco de 28 anos para as promoções indicadas.
+        A própria lei também prevê promoção do 2º Sargento que já possua tempo superior a 28 anos.
+      </p>
+      <p>
+        Os critérios complementares desta página são parâmetros operacionais informados para este checklist e não são apresentados,
+        no texto da Lei nº 14.189/2025, como uma lista autônoma de impedimentos. A conferência jurídica e funcional permanece necessária.
+      </p>
+      <p class="source-links">
+        Fonte oficial: <a href="https://www.al.pb.leg.br/wp-content/uploads/2025/12/DPL-18.12.2025.pdf" target="_blank" rel="noopener noreferrer">Diário do Poder Legislativo da Paraíba - 18/12/2025</a>.
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    Ferramenta local e sem envio de dados. Os cálculos são executados no navegador.
+  </footer>
+
+  <script src="js/calculos.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
