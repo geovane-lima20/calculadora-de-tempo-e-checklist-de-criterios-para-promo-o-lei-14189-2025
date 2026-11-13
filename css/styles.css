@@ -429,3 +429,34 @@ footer {
   .main-actions .btn { flex: 1 1 100%; }
   .section-title-row { align-items: flex-start; }
 }
+
+/* =========================================
+   TEMA DEZEMBRO - REFERÊNCIA 14/12/2026
+   ========================================= */
+
+body.referencia-dezembro {
+  --fundo: #f1f6f7;
+  --verde-claro: #e6f4f0;
+  --verde-pmpb: #009b61;
+}
+
+/* Transição suave entre os temas */
+body {
+  transition: background-color 0.3s ease;
+}
+
+body .card {
+  transition: background-color 0.3s ease,
+              border-color 0.3s ease;
+}
+
+/* Ajustes específicos do tema de dezembro */
+body.referencia-dezembro .card {
+  border-color: #d5e4e6;
+}
+
+body.referencia-dezembro .badge-data {
+  background-color: #e1f2ed;
+  border-color: #b9ddd0;
+  color: #176348;
+}

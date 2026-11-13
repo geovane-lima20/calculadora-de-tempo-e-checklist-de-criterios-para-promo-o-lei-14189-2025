@@ -14,12 +14,15 @@
       <h1>Checklist de Promoções - Lei nº 14.189/2025</h1>
       <p class="subtitulo">
         Pré-análise do tempo de efetivo serviço e dos critérios complementares para promoções de praças,
-        com data de referência fixa em <strong>14/11/2026</strong>.
+        com data de referência a ser selecionada ao lado.      
       </p>
     </div>
     <div class="badge-data" aria-label="Data de referência da análise">
       <span>Data de referência</span>
-      <strong>14/11/2026</strong>
+      <select id = "dataReferencia" name = "dataReferencia">
+        <option value = "2026-11-14">14/11/2026</option>
+        <option value = "2026-12-14" selected>14/12/2026</option>
+      </select>
     </div>
   </header>
 
@@ -70,7 +73,7 @@
 
         <div class="field">
           <label for="dataInclusao">Data de inclusão *</label>
-          <input id="dataInclusao" type="date" max="2026-11-14" required />
+          <input id="dataInclusao" type="date" required />
         </div>
       </div>
 
@@ -128,7 +131,10 @@
               <th>Início</th>
               <th>Fim</th>
               <th>Dias</th>
-              <th>Nº/identificação do boletim</th>
+              <th>Nº de BOL da data de início</th>
+              <th>Unidade</th>
+              <th>Data de publicação</th>
+              <th>Nº de BOL da data final</th>
               <th>Unidade</th>
               <th>Data de publicação</th>
               <th>Ação</th>

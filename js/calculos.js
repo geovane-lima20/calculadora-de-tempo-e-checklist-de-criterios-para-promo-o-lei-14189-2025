@@ -4,7 +4,6 @@
   const MS_DIA = 24 * 60 * 60 * 1000;
   const DIAS_ANO = 365;
   const DIAS_MES = 30.41;
-  const DATA_REFERENCIA_ISO = '2026-11-14';
 
   const REGRAS_PROMOCAO = Object.freeze({
     soldado: Object.freeze({
@@ -124,7 +123,7 @@
     return { intervalos: consolidados, totalDias, houveSobreposicao };
   }
 
-  function calcularTempoEfetivo(dataInclusaoISO, deducoes, dataReferenciaISO = DATA_REFERENCIA_ISO) {
+  function calcularTempoEfetivo(dataInclusaoISO, deducoes, dataReferenciaISO) {
     const inclusao = parseISOData(dataInclusaoISO);
     const referencia = parseISOData(dataReferenciaISO);
     if (!inclusao || !referencia) throw new Error('Data de inclusão ou de referência inválida.');
@@ -145,6 +144,14 @@
       if (!ini || !fim || ini.ms > fim.ms) {
         linhas.push({ ...deducao, indice: idx, dias: 0, erro: 'Período de dedução inválido.' });
         return;
+      }
+
+      // Impede deduções posteriores à data de referência
+      if (ini.ms > referencia.ms || fim.ms > referencia.ms) {
+        throw new Error(
+        `A dedução ${idx + 1} possui data posterior à referência ` +
+        `${formatarDataBR(dataReferenciaISO)}.`
+        );
       }
 
       const recortado = normalizarIntervalo(deducao.inicio, deducao.fim, dataInclusaoISO, dataReferenciaISO);
@@ -182,7 +189,6 @@
     MS_DIA,
     DIAS_ANO,
     DIAS_MES,
-    DATA_REFERENCIA_ISO,
     REGRAS_PROMOCAO,
     parseISOData,
     formatarDataBR,

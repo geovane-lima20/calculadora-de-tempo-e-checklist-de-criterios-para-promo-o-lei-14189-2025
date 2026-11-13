@@ -4,6 +4,7 @@
   const C = window.CalculosPromocao;
   const $ = id => document.getElementById(id);
 
+  const dataReferenciaEl = $('dataReferencia');
   const graduacaoEl = $('graduacao');
   const promocaoEl = $('promocaoPretendida');
   const dataInclusaoEl = $('dataInclusao');
@@ -33,8 +34,7 @@
     { id: 'lei4816', texto: 'O militar possui a promoção pela Lei nº 4.816/1986 válida?', motivo: 'há registro de promoção válida pela Lei nº 4.816/1986' },
     { id: 'comportamento', texto: 'O militar se encontra em um comportamento inferior ao bom?', motivo: 'o militar encontra-se em comportamento inferior ao bom' },
     { id: 'licencaSemVencimento', texto: 'O militar se encontra em gozo de licença sem vencimento?', motivo: 'o militar encontra-se em gozo de licença sem vencimento' },
-    { id: 'prisao', texto: 'O militar se encontra em situação de prisão?', motivo: 'o militar encontra-se em situação de prisão' },
-    { id: 'documentacao', texto: 'A documentação obrigatória se encontra irregular?', motivo: 'a documentação obrigatória encontra-se irregular' }
+    { id: 'prisao', texto: 'O militar se encontra em situação de prisão?', motivo: 'o militar encontra-se em situação de prisão' }
   ];
 
   function escapeHTML(valor) {
@@ -78,12 +78,15 @@
           <input class="tipo-outro" type="text" placeholder="Descreva a dedução" value="${escapeHTML(dados.tipoOutro || '')}" aria-label="Descrição de outra dedução" />
         </div>
       </td>
-      <td><input class="ded-inicio" type="date" max="${C.DATA_REFERENCIA_ISO}" value="${escapeHTML(dados.inicio || '')}" aria-label="Data inicial da dedução" /></td>
-      <td><input class="ded-fim" type="date" max="${C.DATA_REFERENCIA_ISO}" value="${escapeHTML(dados.fim || '')}" aria-label="Data final da dedução" /></td>
+      <td><input class="ded-inicio" type="date" max="${dataReferenciaEl.value}" value="${escapeHTML(dados.inicio || '')}" aria-label="Data inicial da dedução" /></td>
+      <td><input class="ded-fim" type="date" max="${dataReferenciaEl.value}" value="${escapeHTML(dados.fim || '')}" aria-label="Data final da dedução" /></td>
       <td><span class="dias-cell">0</span></td>
-      <td><input class="ded-bol" type="text" placeholder="Bol PM nº ..." value="${escapeHTML(dados.boletim || '')}" aria-label="Boletim da dedução" /></td>
-      <td><input class="ded-unidade" type="text" placeholder="Unidade" value="${escapeHTML(dados.unidade || '')}" aria-label="Unidade da dedução" /></td>
-      <td><input class="ded-data-pub" type="date" value="${escapeHTML(dados.dataPublicacao || '')}" aria-label="Data de publicação da dedução" /></td>
+      <td><input class="ded-bol-inicio" type="text" placeholder="Bol PM nº ..." value="${escapeHTML(dados.boletimInicio || '')}" aria-label="Boletim" /></td>
+      <td><input class="ded-unidade-inicio" type="text" placeholder="Unidade" value="${escapeHTML(dados.unidadeInicio || '')}" aria-label="Unidade" /></td>
+      <td><input class="ded-data-pub-inicio" type="date" max="${dataReferenciaEl.value}" value="${escapeHTML(dados.dataPublicacaoInicio || '')}" aria-label="Data de publicação" /></td>
+      <td><input class="ded-bol-fim" type="text" placeholder="Bol PM nº ..." value="${escapeHTML(dados.boletimFim || '')}" aria-label="Boletim" /></td>
+      <td><input class="ded-unidade-fim" type="text" placeholder="Unidade" value="${escapeHTML(dados.unidadeFim || '')}" aria-label="Unidade" /></td>
+      <td><input class="ded-data-pub-fim" type="date" max="${dataReferenciaEl.value}" value="${escapeHTML(dados.dataPublicacaoFim || '')}" aria-label="Data de publicação" /></td>
       <td><button type="button" class="btn btn-danger-small remover-deducao">Remover</button></td>
     `;
 
@@ -96,7 +99,12 @@
 
     tr.querySelector('.remover-deducao').addEventListener('click', () => {
       tr.remove();
-      if (!tabelaBody.querySelector('tr')) criarLinhaDeducao();
+
+      if (!tabelaBody.querySelector('tr')) {
+        criarLinhaDeducao();
+      }
+
+      invalidarResultado();
     });
 
     const atualizarDiasLinha = () => {
@@ -113,6 +121,41 @@
     tr.querySelector('.ded-fim').addEventListener('change', atualizarDiasLinha);
     tabelaBody.appendChild(tr);
     atualizarDiasLinha();
+  }
+
+  function atualizarLimitesDatas() {
+
+    const dataLimite = dataReferenciaEl.value;
+    const camposLimpados = [];
+
+    // Busca todos os campos de data do formulário
+    document.querySelectorAll('main input[type="date"]')
+      .forEach(campo => {
+
+        // Atualiza a data máxima permitida
+        campo.max = dataLimite;
+
+        // Verifica se já existe data superior ao limite
+        if (campo.value && campo.value > dataLimite) {
+
+          limparDataForaLimite(campo);
+          camposLimpados.push(campo);
+
+        }
+      });
+
+    // Emite um único alerta caso existam datas inválidas
+    if (camposLimpados.length > 0) {
+
+      alert(
+       `A data de referência foi alterada para ` +
+       `${C.formatarDataBR(dataLimite)}.\n\n` +
+        `${camposLimpados.length} campo(s) continha(m) datas ` +
+        `superiores à nova referência e foram limpos.`
+      );
+
+      camposLimpados[0].focus();
+    }
   }
 
   function renderizarCriterios() {
@@ -142,7 +185,7 @@
             </div>
             <div class="field">
               <label for="crit-${criterio.id}-data">Data de publicação</label>
-              <input id="crit-${criterio.id}-data" class="crit-data" type="date" />
+              <input id="crit-${criterio.id}-data" max="${dataReferenciaEl.value}" class="crit-data" type="date" />
             </div>
           </div>
         </details>
@@ -170,11 +213,16 @@
         tipoOutro,
         inicio: tr.querySelector('.ded-inicio').value,
         fim: tr.querySelector('.ded-fim').value,
-        boletim: tr.querySelector('.ded-bol').value.trim(),
-        unidade: tr.querySelector('.ded-unidade').value.trim(),
-        dataPublicacao: tr.querySelector('.ded-data-pub').value
+        
+        boletimInicio: tr.querySelector('.ded-bol-inicio').value.trim(),
+        unidadeInicio: tr.querySelector('.ded-unidade-inicio').value.trim(),
+        dataPublicacaoInicio: tr.querySelector('.ded-data-pub-inicio').value,
+
+        boletimFim: tr.querySelector('.ded-bol-fim').value.trim(),
+        unidadeFim: tr.querySelector('.ded-unidade-fim').value.trim(),
+        dataPublicacaoFim: tr.querySelector('.ded-data-pub-fim').value
       };
-    }).filter(d => d.tipo || d.inicio || d.fim || d.boletim || d.unidade || d.dataPublicacao);
+    }).filter(d => d.tipo || d.inicio || d.fim || d.boletimInicio || d.unidadeInicio || d.dataPublicacaoInicio || d.boletimFim || d.unidadeFim || d.dataPublicacaoFim);
   }
 
   function lerCriterios() {
@@ -204,13 +252,32 @@
     mensagemErroEl.textContent = '';
   }
 
+  function limparDataForaLimite(campo) {
+
+  // Apaga a data inválida
+  campo.value = '';
+
+  // Se for uma data de dedução, zera os dias exibidos
+  if (campo.matches('.ded-inicio, .ded-fim')) {
+    const linha = campo.closest('tr');
+    if (linha) {
+      linha.querySelector('.dias-cell').textContent = '0';
+    }
+  }
+
+  // Invalida eventual avaliação anterior
+  resultadoEl.hidden = true;
+  textoRelatorioEl.value = '';
+  copiarStatusEl.textContent = '';
+  }
+
   function validarDados(graduacao, dataInclusao, deducoes) {
     if (!graduacao) return 'Selecione a graduação atual do militar.';
     if (!dataInclusao) return 'Informe a data de inclusão do militar.';
     const inclusao = C.parseISOData(dataInclusao);
-    const referencia = C.parseISOData(C.DATA_REFERENCIA_ISO);
+    const referencia = C.parseISOData(dataReferenciaEl.value);
     if (!inclusao) return 'A data de inclusão informada é inválida.';
-    if (inclusao.ms > referencia.ms) return `A data de inclusão não pode ser posterior a ${C.formatarDataBR(C.DATA_REFERENCIA_ISO)}.`;
+    if (inclusao.ms > referencia.ms) return `A data de inclusão não pode ser posterior a ${C.formatarDataBR(dataReferenciaEl.value)}.`;
 
     for (let i = 0; i < deducoes.length; i += 1) {
       const d = deducoes[i];
@@ -229,7 +296,20 @@
   }
 
   function montarReferenciaDeducao(d) {
-    return formatarReferencia({ boletim: d.boletim, unidade: d.unidade, data: d.dataPublicacao });
+
+    const inicio = formatarReferencia({
+      boletim: d.boletimInicio,
+      unidade: d.unidadeInicio,
+      data: d.dataPublicacaoInicio
+    });
+
+    const fim = formatarReferencia({
+      boletim: d.boletimFim,
+      unidade: d.unidadeFim,
+      data: d.dataPublicacaoFim
+    });
+
+    return `Início: ${inicio}; término: ${fim}`;
   }
 
   function construirTextoRelatorio(ctx) {
@@ -237,20 +317,36 @@
     const { regra, tempo, avaliacaoTempo, criterios, apto, refInclusao, refGraduacao, pendenciasReferencia } = ctx;
 
     linhas.push('ANÁLISE DE PROMOÇÃO - LEI Nº 14.189/2025');
-    linhas.push(`Data de referência da avaliação: ${C.formatarDataBR(C.DATA_REFERENCIA_ISO)}.`);
+    linhas.push(`Data de referência da avaliação: ${C.formatarDataBR(dataReferenciaEl.value)}.`);
     linhas.push(`Graduação atual: ${regra.graduacao}. Promoção analisada: ${regra.destino}.`);
     linhas.push('');
-    linhas.push(`Tempo bruto contado da inclusão (${C.formatarDataBR(dataInclusaoEl.value)}) até ${C.formatarDataBR(C.DATA_REFERENCIA_ISO)}: ${tempo.diasBrutos.toLocaleString('pt-BR')} dias.`);
+    linhas.push(`Tempo bruto contado da inclusão (${C.formatarDataBR(dataInclusaoEl.value)}) até ${C.formatarDataBR(dataReferenciaEl.value)}: ${tempo.diasBrutos.toLocaleString('pt-BR')} dias.`);
     linhas.push(`Deduções computadas: ${tempo.deducoesDias.toLocaleString('pt-BR')} dias.`);
-    linhas.push(`Tempo de efetivo serviço apurado até ${C.formatarDataBR(C.DATA_REFERENCIA_ISO)}: ${formatarDias(tempo.efetivoDias)}.`);
+    linhas.push(`Tempo de efetivo serviço apurado até ${C.formatarDataBR(dataReferenciaEl.value)}: ${formatarDias(tempo.efetivoDias)}.`);
     linhas.push(`Tempo mínimo aplicado à promoção para ${regra.destino}: ${formatarDias(regra.minimoDias)} (${regra.descricao}).`);
     linhas.push(`Referência da inclusão: ${formatarReferencia(refInclusao)}.`);
     linhas.push(`Referência da graduação atual: ${formatarReferencia(refGraduacao)}.`);
 
     if (tempo.linhas.filter(x => x.dias > 0).length) {
       linhas.push('Deduções consideradas no cálculo:');
+
       tempo.linhas.filter(x => x.dias > 0).forEach((d, idx) => {
-        linhas.push(`${idx + 1}. ${d.tipo || 'Dedução'} - ${C.formatarDataBR(d.inicio)} a ${C.formatarDataBR(d.fim)} - ${d.dias} dias; referência: ${montarReferenciaDeducao(d)}.`);
+
+        // Datas originais informadas pelo usuário
+        const inicioOriginal = d.inicio;
+        const fimOriginal = d.fim;
+
+        // Datas efetivamente consideradas no cálculo
+        const inicioComputado = d.recortado.inicioISO;
+        const fimComputado = d.recortado.fimISO;
+
+        linhas.push(
+          `${idx + 1}. ${d.tipo || 'Dedução'} - ` +
+          `Período informado: ${C.formatarDataBR(inicioOriginal)} a ${C.formatarDataBR(fimOriginal)}. ` +
+          `Período computado: ${C.formatarDataBR(inicioComputado)} a ${C.formatarDataBR(fimComputado)}. ` +
+          `Total: ${d.dias} dias; referência: ${montarReferenciaDeducao(d)}.`
+        );
+
       });
     }
 
@@ -262,7 +358,7 @@
       linhas.push('Motivos da inaptidão:');
       let numero = 1;
       if (!avaliacaoTempo.aptoTempo) {
-        linhas.push(`${numero}. O militar não atingirá, até ${C.formatarDataBR(C.DATA_REFERENCIA_ISO)}, o tempo mínimo configurado para a promoção. Tempo apurado: ${tempo.efetivoDias.toLocaleString('pt-BR')} dias; mínimo: ${regra.minimoDias.toLocaleString('pt-BR')} dias; faltam ${avaliacaoTempo.faltamDias.toLocaleString('pt-BR')} dias.`);
+        linhas.push(`${numero}. O militar não atingirá, até ${C.formatarDataBR(dataReferenciaEl.value)}, o tempo mínimo configurado para a promoção. Tempo apurado: ${tempo.efetivoDias.toLocaleString('pt-BR')} dias; mínimo: ${regra.minimoDias.toLocaleString('pt-BR')} dias; faltam ${avaliacaoTempo.faltamDias.toLocaleString('pt-BR')} dias.`);
         numero += 1;
       }
       criterios.filter(c => c.resposta === 'sim').forEach(c => {
@@ -306,7 +402,7 @@
       <div class="resumo-item"><span>Promoção analisada</span><strong>${escapeHTML(regra.graduacao)} → ${escapeHTML(regra.destino)}</strong></div>
       <div class="resumo-item"><span>Tempo bruto</span><strong>${tempo.diasBrutos.toLocaleString('pt-BR')} dias</strong></div>
       <div class="resumo-item"><span>Total de deduções</span><strong>${tempo.deducoesDias.toLocaleString('pt-BR')} dias</strong></div>
-      <div class="resumo-item"><span>Efetivo serviço em 14/11/2026</span><strong>${tempo.efetivoDias.toLocaleString('pt-BR')} dias</strong></div>
+      <div class="resumo-item"><span>Efetivo serviço em ${C.formatarDataBR(dataReferenciaEl.value)}</span><strong>${tempo.efetivoDias.toLocaleString('pt-BR')} dias</strong></div>
       <div class="resumo-item"><span>Conversão do efetivo serviço</span><strong>${escapeHTML(C.tempoExtenso(tempo.efetivoDias))}</strong></div>
       <div class="resumo-item"><span>Tempo mínimo</span><strong>${regra.minimoDias.toLocaleString('pt-BR')} dias</strong></div>
       <div class="resumo-item"><span>Comparação temporal</span><strong>${escapeHTML(diferencaTexto)}</strong></div>
@@ -345,7 +441,33 @@
   }
 
   function analisar() {
+    
+    resultadoEl.hidden = true;
+    textoRelatorioEl.value = '';
+    copiarStatusEl.textContent = '';
+
     limparErro();
+
+    const campoInvalido = Array.from(
+      document.querySelectorAll('main input[type="date"]')
+    ).find(campo =>
+        campo.value && campo.value > dataReferenciaEl.value
+      );
+
+    if (campoInvalido) {
+
+      limparDataForaLimite(campoInvalido);
+
+      alert(
+        `Foi identificada uma data superior à referência ` +
+        `${C.formatarDataBR(dataReferenciaEl.value)}. ` +
+        `O campo foi limpo.`
+      );
+
+      campoInvalido.focus();
+      return;
+    }
+
     const graduacao = graduacaoEl.value;
     const dataInclusao = dataInclusaoEl.value;
     const deducoes = lerDeducoes();
@@ -357,7 +479,7 @@
 
     let tempo;
     try {
-      tempo = C.calcularTempoEfetivo(dataInclusao, deducoes, C.DATA_REFERENCIA_ISO);
+      tempo = C.calcularTempoEfetivo(dataInclusao, deducoes, dataReferenciaEl.value);
     } catch (e) {
       mostrarErro(e.message || 'Não foi possível calcular o tempo de efetivo serviço.');
       return;
@@ -382,7 +504,17 @@
       if (!referenciaTemBoletim(refInclusao)) pendenciasReferencia.push('data de inclusão');
       if (!referenciaTemBoletim(refGraduacao)) pendenciasReferencia.push('graduação atual');
       tempo.linhas.filter(x => x.dias > 0).forEach((d, idx) => {
-        if (!d.boletim) pendenciasReferencia.push(`dedução ${idx + 1} (${d.tipo || 'sem tipo'})`);
+        if (!d.boletimInicio) {
+          pendenciasReferencia.push(
+            `boletim de início da dedução ${idx + 1} (${d.tipo})`
+          );
+        }
+
+        if (!d.boletimFim) {
+          pendenciasReferencia.push(
+            `boletim de término da dedução ${idx + 1} (${d.tipo})`
+          );
+        }
       });
     }
 
@@ -398,7 +530,8 @@
       criterios,
       refInclusao,
       refGraduacao,
-      pendenciasReferencia
+      pendenciasReferencia,
+      dataReferenciaISO: dataReferenciaEl.value
     });
   }
 
@@ -439,19 +572,89 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  function invalidarResultado() {
+    resultadoEl.hidden = true;
+    textoRelatorioEl.value = '';
+    copiarStatusEl.textContent = '';
+  }
+
+  document.querySelector('main').addEventListener(
+    'input',
+    invalidarResultado
+  );
+
+  document.querySelector('main').addEventListener(
+    'change',
+    invalidarResultado
+  );
+
+  function atualizarReferencia() {
+
+    atualizarLimitesDatas();
+
+    document.body.classList.toggle(
+      'referencia-dezembro',
+      dataReferenciaEl.value === '2026-12-14'
+    );
+
+    resultadoEl.hidden = true;
+    textoRelatorioEl.value = '';
+    copiarStatusEl.textContent = '';
+    limparErro();
+  }
+
+  dataReferenciaEl.addEventListener(
+    'change',
+    atualizarReferencia
+  );
+
   graduacaoEl.addEventListener('change', () => {
     const regra = C.REGRAS_PROMOCAO[graduacaoEl.value];
     promocaoEl.value = regra ? regra.destino : 'Selecione a graduação atual';
   });
 
-  $('addDeducao').addEventListener('click', () => criarLinhaDeducao());
+  $('addDeducao').addEventListener('click', () => {
+    criarLinhaDeducao();
+    invalidarResultado();
+  });
+
   $('analisar').addEventListener('click', analisar);
   $('limpar').addEventListener('click', limparTudo);
   $('copiar').addEventListener('click', copiarTexto);
 
   renderizarCriterios();
   criarLinhaDeducao();
+  atualizarReferencia();
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.addEventListener('load', () => window.scrollTo(0, 0));
+  window.addEventListener('load', () => window.scrollTo(0, 0)
+  );
+
+  document.querySelector('main').addEventListener('change', (event) => {
+
+    const campo = event.target;
+
+    // Verifica se o elemento alterado é um campo de data
+    if (!campo.matches('input[type="date"]')) return;
+
+    const dataInformada = campo.value;
+    const dataLimite = dataReferenciaEl.value;
+
+    // Se não houver data ou ela estiver dentro do limite, não faz nada
+    if (!dataInformada || dataInformada <= dataLimite) return;
+
+    // Data posterior à referência: limpa o campo
+    limparDataForaLimite(campo);
+
+    // Informa o motivo ao usuário
+    alert(
+      `A data informada não pode ser superior à data de referência ` +
+      `(${C.formatarDataBR(dataLimite)}).\n\n` +
+      `O campo foi limpo. Informe uma data válida.`
+    );
+
+    // Retorna o foco para o campo corrigido
+    campo.focus();
+  });
+
 })();
