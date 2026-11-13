@@ -322,8 +322,8 @@
     linhas.push('');
     linhas.push(`Tempo bruto contado da inclusão (${C.formatarDataBR(dataInclusaoEl.value)}) até ${C.formatarDataBR(dataReferenciaEl.value)}: ${tempo.diasBrutos.toLocaleString('pt-BR')} dias.`);
     linhas.push(`Deduções computadas: ${tempo.deducoesDias.toLocaleString('pt-BR')} dias.`);
-    linhas.push(`Tempo de efetivo serviço apurado até ${C.formatarDataBR(dataReferenciaEl.value)}: ${formatarDias(tempo.efetivoDias)}.`);
-    linhas.push(`Tempo mínimo aplicado à promoção para ${regra.destino}: ${formatarDias(regra.minimoDias)} (${regra.descricao}).`);
+    linhas.push(`Tempo de efetivo serviço apurado: ${formatarDias(tempo.efetivoDias)}.`);
+    linhas.push(`Tempo mínimo aplicado à promoção: ${formatarDias(regra.minimoDias)} (${regra.descricao}).`);
     linhas.push(`Referência da inclusão: ${formatarReferencia(refInclusao)}.`);
     linhas.push(`Referência da graduação atual: ${formatarReferencia(refGraduacao)}.`);
 
@@ -352,9 +352,9 @@
 
     linhas.push('');
     if (apto) {
-      linhas.push(`RESULTADO: APTO À PROMOÇÃO À GRADUAÇÃO DE ${regra.destino.toUpperCase()}, considerando exclusivamente os dados inseridos nesta ferramenta. O requisito temporal foi atingido e todos os critérios complementares foram informados como “Não”.`);
+      linhas.push(`RESULTADO: APTO À PROMOÇÃO DE ${regra.destino.toUpperCase()}. O requisito temporal foi atingido e não há impedimento conforme critérios da CPP.`);
     } else {
-      linhas.push(`RESULTADO: INAPTO À PROMOÇÃO À GRADUAÇÃO DE ${regra.destino.toUpperCase()}, considerando os dados inseridos nesta ferramenta.`);
+      linhas.push(`RESULTADO: INAPTO À PROMOÇÃO DE ${regra.destino.toUpperCase()}, considerando os dados inseridos nesta ferramenta.`);
       linhas.push('Motivos da inaptidão:');
       let numero = 1;
       if (!avaliacaoTempo.aptoTempo) {
@@ -382,7 +382,7 @@
     }
 
     linhas.push('');
-    linhas.push('Observação: resultado automatizado de apoio administrativo, sujeito à conferência do histórico funcional, dos boletins e da legislação aplicável pela autoridade competente.');
+    linhas.push('Observação: resultado automatizado de apoio administrativo, sujeito à conferência da CPP.');
     return linhas.join('\n');
   }
 
